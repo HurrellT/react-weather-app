@@ -11,16 +11,20 @@ const CurrentDayCard = ({ reading, degreeType }) => {
     const imgURL = `owf owf-${reading.weather[0].id} owf-5x`
 
     return (
-        <div className="col-sm-11 d-flex justify-content-center align-items-center align-self-center">
-            <div className="col-sm-2">
+        <div className="container-fluid col-sm-8 d-flex justify-content-center align-items-center align-self-center">
+            <div className="container-fluid col-sm-4">
                 <h3 className="">{moment(newDate).format('dddd')}</h3>
                 <p className="text-muted">{moment(newDate).format('MMMM Do, h:mm a')}</p>
             </div>
-            <div className="col-sm-4">
+            <div className="container-fluid col-sm-2">
                 <i className={imgURL}></i>
+            </div>
+            <div className="container-fluid col-sm-2">
                 <p className="">{reading.weather[0].description}</p>
             </div>
-            <h2>{degreeType === "celsius" ? celsius + "°C" : fahrenheit + "°F"}</h2>
+            <div className="container-fluid col-sm-2">
+                <h2>{degreeType === "celsius" ? celsius + "°C" : fahrenheit + "°F"}</h2>
+            </div>
         </div>
 
     )
