@@ -1,37 +1,81 @@
 import React, { Component } from 'react';
 import Sidebar from './components/Sidebar';
 import WeekContainer from './components/WeekContainer';
+import apiConfig from './apiKeys'
 
 class HomePage extends Component {
 
     state = {
-        selectedCity: "",
-        loading: true
+        status: 'init',
+        selectedCity: null,
+        loading: true,
+        weatherData: null,
+        dailyData: null,
     }
 
-    componentDidMount() {
-        this.getLocation();
-    }
+    abortController = new AbortController();
+    controllerSignal = this.abortController.signal;
 
-    async getLocation() {
-        const response = await fetch('http://api.ipapi.com/check?access_key=ec27b783b5f37a479b2b81fbc025a904&format=1');
-        const json = await response.json();
-        this.setState({
-            selectedCity: json.city,
-            loading: false
-        });
-    }
+    weatherInitialization = () => {
 
-    updateWeekContainer = event => {
-        const value = event.target.value;
-        
-        if (value === 'location') {
-            this.getLocation();
+        const onSuccess = (position) => {
+            this.getForecast(position.city)
+            // console.log(position);
+        }
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(onSuccess,
+                function (failure) {
+                    fetch('http://api.ipapi.com/check?access_key=ec27b783b5f37a479b2b81fbc025a904&format=1')
+                    .then(res => res.json())
+                    .then(data => onSuccess(data))
+                });
         }
         else {
-            this.setState({
-                selectedCity: event.target.value
-            })
+            alert('Your browser does not support location tracking, or permission is denied.');
+        }
+    }
+
+    getForecast(location) {
+        const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${location}&units=imperial&APPID=${apiConfig.openWeatherMapKey}`
+
+        fetch(forecastUrl, { signal: this.controllerSignal })
+            .then(res => res.json())
+            .then(data => {
+                // console.log(data);
+
+                const dailyData = data.list.filter(reading => reading.dt_txt.includes("18:00:00"))
+                this.setState({
+                    loading: false,
+                    weatherData: data,
+                    dailyData: dailyData,
+                    selectedCity: location.city
+                });
+            },
+                (error) => {
+                    this.setState({
+                        loading: false,
+                        error
+                    })
+                })
+    }
+
+    componentWillUnmount() {
+        this.abortController.abort();
+    }
+
+
+    componentDidMount() {
+        this.weatherInitialization();
+    }
+
+    updateSelectedCity = event => {
+        
+        if (event.target.value === 'location') {
+            this.weatherInitialization();
+        }
+        else {
+            this.getForecast(event.target.value);
         }
     }
 
@@ -46,8 +90,8 @@ class HomePage extends Component {
         else {
             return (
                 <div className="row">
-                    <Sidebar updateWeekContainer={this.updateWeekContainer} />
-                    <WeekContainer selectedCity={this.state.selectedCity} />
+                    <Sidebar updateSelectedCity={this.updateSelectedCity} />
+                    <WeekContainer weatherData={this.state.weatherData} dailyData={this.state.dailyData}/>
                 </div>
             )
         }
