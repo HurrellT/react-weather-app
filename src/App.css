@@ -36,3 +36,23 @@
     transform: rotate(360deg);
   }
 }
+
+.sidebar {
+  padding: 1em;
+}
+
+.nav-pills .nav-link.active {
+  background-color: darkgrey !important;
+}
+
+.nav-link {
+  color: dimgray;
+}
+
+.cityTitle {
+  padding-top: 0.2em;
+}
+
+.degreeToggle {
+  padding-bottom: 1em;
+}
