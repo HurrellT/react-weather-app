@@ -6,7 +6,6 @@ import apiConfig from './apiKeys'
 class HomePage extends Component {
 
     state = {
-        status: 'init',
         selectedCity: null,
         loading: true,
         weatherData: null,
@@ -20,7 +19,6 @@ class HomePage extends Component {
 
         const onSuccess = (position) => {
             this.getForecast(position.city)
-            // console.log(position);
         }
 
         if (navigator.geolocation) {
@@ -42,8 +40,6 @@ class HomePage extends Component {
         fetch(forecastUrl, { signal: this.controllerSignal })
             .then(res => res.json())
             .then(data => {
-                // console.log(data);
-
                 const dailyData = data.list.filter(reading => reading.dt_txt.includes("18:00:00"))
                 this.setState({
                     loading: false,
@@ -64,19 +60,13 @@ class HomePage extends Component {
         this.abortController.abort();
     }
 
-
     componentDidMount() {
         this.weatherInitialization();
     }
 
     updateSelectedCity = event => {
-        
-        if (event.target.value === 'location') {
-            this.weatherInitialization();
-        }
-        else {
-            this.getForecast(event.target.value);
-        }
+        if (event.target.value === 'location') this.weatherInitialization();
+        else this.getForecast(event.target.value);
     }
 
     render() {

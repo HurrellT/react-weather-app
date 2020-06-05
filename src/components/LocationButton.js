@@ -1,6 +1,6 @@
 import React from 'react';
 
-const LocationLink = ({ value, label, updateSelectedCity }) => {
+const LocationButton = ({ value, label, updateSelectedCity }) => {
     return (
         <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
             <button type="button" class="btn btn-light" 
@@ -11,4 +11,4 @@ const LocationLink = ({ value, label, updateSelectedCity }) => {
     )
 }
 
-export default LocationLink;
+export default LocationButton;
