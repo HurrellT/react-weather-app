@@ -17,16 +17,19 @@ class HomePage extends Component {
 
     weatherInitialization = () => {
 
-        const onSuccess = (position) => {
-            this.getForecast(position.city)
+        const onSuccess = (latitude, longitude) => {            
+            this.getForecast(latitude, longitude)
         }
 
         if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(onSuccess,
+            navigator.geolocation.getCurrentPosition(
+                function (data) {
+                    onSuccess(data.coords.latitude, data.coords.longitude)
+                },
                 function (failure) {
                     fetch('http://api.ipapi.com/check?access_key=ec27b783b5f37a479b2b81fbc025a904&format=1')
                     .then(res => res.json())
-                    .then(data => onSuccess(data))
+                    .then(data => onSuccess(data.latitude, data.longitude))
                 });
         }
         else {
@@ -34,8 +37,8 @@ class HomePage extends Component {
         }
     }
 
-    getForecast(location) {
-        const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${location}&units=imperial&APPID=${apiConfig.openWeatherMapKey}`
+    getForecast(latitude, longitude) {
+        const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&units=imperial&APPID=${apiConfig.openWeatherMapKey}`
 
         fetch(forecastUrl, { signal: this.controllerSignal })
             .then(res => res.json())
@@ -45,7 +48,7 @@ class HomePage extends Component {
                     loading: false,
                     weatherData: data,
                     dailyData: dailyData,
-                    selectedCity: location.city
+                    selectedCity: data.city
                 });
             },
                 (error) => {
@@ -66,7 +69,10 @@ class HomePage extends Component {
 
     updateSelectedCity = event => {
         if (event.target.value === 'location') this.weatherInitialization();
-        else this.getForecast(event.target.value);
+        else {
+            const data = JSON.parse(event.target.value);
+            this.getForecast(data.latitude, data.longitude);
+        };
     }
 
     render() {
